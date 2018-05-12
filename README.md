@@ -1,4 +1,4 @@
-# sublime-go
+# sublime-go &middot; [![Build Status](https://travis-ci.org/bongnv/sublime-go.svg?branch=master)](https://travis-ci.org/bongnv/sublime-go)
 Al Sublime Text package for working with Go.
 
 ## Features
