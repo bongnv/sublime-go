@@ -3,7 +3,7 @@ Al Sublime Text package for working with Go.
 
 ## Features
 - Code format (using `goimports`)
-- Goto definition (using `guru`)
+- Goto definition (using `guru`). Support modified files.
 - Linter (using `golint` and `SublimeLinter`)
 
 ## Requirements

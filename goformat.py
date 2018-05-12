@@ -11,6 +11,9 @@ def diff_sanity_check(a, b):
 
 
 class GoFormatCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return utils.is_go_view(self.view)
+
     def run(self, edit, cmd):
         view = self.view
         if not utils.is_go_view(view):

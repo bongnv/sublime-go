@@ -17,8 +17,8 @@ class GoGuruGotoCommand(sublime_plugin.TextCommand):
         offset = utils.get_byte_offset(self.view)
 
         code, sout, serr = utils.run_go_tool(
-            ["guru", "-json", 'definition', filename + ":#" + str(offset)],
-            stdin=None,
+            ["guru", "-json", "-modified", "definition", filename + ":#" + str(offset)],
+            stdin=utils.get_file_archive(self.view),
             file_path=filename,
         )
 

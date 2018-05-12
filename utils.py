@@ -85,3 +85,14 @@ def get_byte_offset(view):
     if view.line_endings() == "Windows":
         byte_offset += text.count('\n')
     return byte_offset
+
+
+# get_file_archive generate stdin of modified files in the format that guru can understand.
+def get_file_archive(view):
+    size = view.size()
+    text = view.substr(sublime.Region(0, size))
+    return "\n".join([
+        view.file_name(),
+        str(size),
+        text,
+    ])
