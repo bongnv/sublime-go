@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# sublime project files
+sublime-go.sublime-project
+sublime-go.sublime-workspace

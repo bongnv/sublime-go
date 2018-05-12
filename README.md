@@ -4,6 +4,7 @@ Al Sublime Text package for working with Go.
 ## Features
 - Code format (using `goimports`)
 - Goto definition (using `guru`)
+- Linter (using `golint` and `SublimeLinter`)
 
 ## Requirements
 
@@ -12,7 +13,10 @@ You probably need to install some golang tools:
 go get -u golang.org/x/tools/cmd/goimports
 go get -u github.com/nsf/gocode
 go get -u golang.org/x/tools/cmd/guru
+go get -u golang.org/x/lint/golint
 ```
+
+Make sure [`SublimeLinter`](http://www.sublimelinter.com/en/stable/) is installed in order to golint to work properly.
 
 ## Configurations
 
