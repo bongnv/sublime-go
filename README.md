@@ -2,8 +2,7 @@
 Al Sublime Text package for working with Go.
 
 ## Features
-
-TODO
+- Code format (using `goimports`)
 
 ## Requirements
 
@@ -25,6 +24,7 @@ See [`CHANGELOG`](CHANGELOG) file
 
 * TODO
 * This plugin uses GoSublime syntax files for Go. Original work could be found from https://github.com/DisposaBoy/GoSublime.
+* Some python codes are copied from https://github.com/nsf/gocode/blob/master/subl3
 
 ## License
 See [`LICENSE`](LICENSE) file
