@@ -2,5 +2,12 @@
 	{
 		"caption": "Go: Goto Definition",
 		"command": "go_guru_goto"
+	},
+	{
+		"caption": "Go: Goimports",
+		"command":  "go_format",
+		"args": {
+			"cmd": ["goimports","-e","-srcdir={file}"]
+		}
 	}
 ]

@@ -10,16 +10,18 @@ def diff_sanity_check(a, b):
         raise Exception("diff sanity check mismatch\n-%s\n+%s" % (a, b))
 
 
-class GoGoimportsCommand(sublime_plugin.TextCommand):
-    def run(self, edit):
+class GoFormatCommand(sublime_plugin.TextCommand):
+    def run(self, edit, cmd):
         view = self.view
         if not utils.is_go_view(view):
             return
 
         src = view.substr(sublime.Region(0, view.size()))
         filename = view.file_name()
+
+        cmd = [x.format_map({"file": filename}) for x in cmd]
         code, sout, serr = utils.run_go_tool(
-            ["goimports", "-e", "-srcdir=" + filename],
+            cmd,
             src,
             filename,
         )
