@@ -21,8 +21,12 @@ TODO
 
 See [`CHANGELOG`](CHANGELOG) file
 
-### For more information
+## For more information
 
 * TODO
+* This plugin uses GoSublime syntax files for Go. Original work could be found from https://github.com/DisposaBoy/GoSublime.
+
+## License
+See [`LICENSE`](LICENSE) file
 
 **Enjoy!**
