@@ -1,0 +1,10 @@
+[
+	{
+		"keys": ["f12"],
+		"command": "go_guru_goto",
+		"context": [
+			{"key": "selector", "operator":"equal", "operand": "source.go"},
+			{"key": "setting.go_enable_default_hot_keys"}
+		]
+	}
+]

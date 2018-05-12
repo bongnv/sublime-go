@@ -29,14 +29,21 @@ def prepare_env(current_path="", env=os.environ):
 
 # run_go_tool executes a go tool command and return code, stdout, stderr.
 def run_go_tool(cmd, stdin=None, file_path=None):
+    stdin_p = subprocess.PIPE
+    if stdin is None:
+        stdin_p = None
+
     gotool = subprocess.Popen(
         cmd,
-        stdin=subprocess.PIPE,
+        stdin=stdin_p,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         env=prepare_env(file_path, os.environ),
     )
-    sout, serr = gotool.communicate(stdin.encode())
+    if stdin is None:
+        sout, serr = gotool.communicate()
+    else:
+        sout, serr = gotool.communicate(stdin.encode())
     if gotool.returncode != 0:
         return gotool.returncode, None, serr.decode()
     return 0, sout.decode(), None
@@ -68,3 +75,13 @@ def safe_replace_all(edit, view, src, dest):
             diff_sanity_check(view.substr(
                 sublime.Region(i, i + length - 1)), line[2:])
             i += length
+
+
+# get_byte_offset returns the current byte offset
+def get_byte_offset(view):
+    cur_char_offset = view.sel()[0].begin()
+    text = view.substr(sublime.Region(0, cur_char_offset))
+    byte_offset = len(text.encode())
+    if view.line_endings() == "Windows":
+        byte_offset += text.count('\n')
+    return byte_offset

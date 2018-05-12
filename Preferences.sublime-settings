@@ -1,0 +1,4 @@
+{
+	"auto_complete_triggers": [ {"selector": "source.go", "characters": "."} ],
+	"go_enable_default_hot_keys": true
+}

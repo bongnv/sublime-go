@@ -7,4 +7,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
 - README and documents stuff
-- GoImports to format files on save
+- `goimports` to format files on save
+- `gocode` to suggest autocompletion
+- `guru` to search for definitions

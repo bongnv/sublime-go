@@ -10,7 +10,8 @@ TODO
 
 ## Configurations
 
-TODO
+The plugin contributes the following settings:
+- `go_enable_default_hot_keys`: Enable default hot keys provided by the package (default: `true`)
 
 ## Known Issues
 

@@ -1,0 +1,6 @@
+[
+	{
+		"caption": "Go: Goto Definition",
+		"command": "go_guru_goto"
+	}
+]
