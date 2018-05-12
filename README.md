@@ -18,7 +18,7 @@ TODO
 
 ## Release Notes
 
-See [`CHANGELOG`](CHANGELOG) file
+See [`CHANGELOG.md`](CHANGELOG.md) file
 
 ## For more information
 
