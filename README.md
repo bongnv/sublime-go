@@ -3,10 +3,16 @@ Al Sublime Text package for working with Go.
 
 ## Features
 - Code format (using `goimports`)
+- Goto definition (using `guru`)
 
 ## Requirements
 
-TODO
+You probably need to install some golang tools:
+```shell
+go get -u golang.org/x/tools/cmd/goimports
+go get -u github.com/nsf/gocode
+go get -u golang.org/x/tools/cmd/guru
+```
 
 ## Configurations
 
@@ -23,7 +29,6 @@ See [`CHANGELOG.md`](CHANGELOG.md) file
 
 ## For more information
 
-* TODO
 * This plugin uses GoSublime syntax files for Go. Original work could be found from https://github.com/DisposaBoy/GoSublime.
 * Some python codes are copied from https://github.com/nsf/gocode/blob/master/subl3
 
