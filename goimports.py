@@ -33,15 +33,15 @@ class GoGoimportsCommand(sublime_plugin.TextCommand):
             if line.startswith("?"):  # skip hint lines
                 continue
 
-            l = (len(line) - 2) + 1
+            length = (len(line) - 2) + 1
             if line.startswith("-"):
                 diff_sanity_check(view.substr(
-                    sublime.Region(i, i + l - 1)), line[2:])
-                view.erase(edit, sublime.Region(i, i + l))
+                    sublime.Region(i, i + length - 1)), line[2:])
+                view.erase(edit, sublime.Region(i, i + length))
             elif line.startswith("+"):
                 view.insert(edit, i, line[2:] + "\n")
-                i += l
+                i += length
             else:
                 diff_sanity_check(view.substr(
-                    sublime.Region(i, i + l - 1)), line[2:])
-                i += l
+                    sublime.Region(i, i + length - 1)), line[2:])
+                i += length
