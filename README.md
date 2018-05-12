@@ -33,7 +33,6 @@ See [`CHANGELOG.md`](CHANGELOG.md) file
 
 ## For more information
 
-* This plugin uses GoSublime syntax files for Go. Original work could be found from https://github.com/DisposaBoy/GoSublime.
 * Some python codes are copied from https://github.com/nsf/gocode/blob/master/subl3
 
 ## License
