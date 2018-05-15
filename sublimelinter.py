@@ -7,7 +7,6 @@ from . import utils
 class Golint(Linter):
     regex = r'^.+:(?P<line>\d+):(?P<col>\d+):\s+(?P<message>.+)'
     tempfile_suffix = '-'
-    error_stream = util.STREAM_BOTH
     defaults = {
         'selector': 'source.go'
     }
@@ -17,9 +16,15 @@ class Golint(Linter):
         gopath = utils.gopath_from_path(file_path)
         return os.path.join(gopath, "bin", "golint")
 
+    def parse_output(self, proc, virtual_view):
+        out = proc.stderr
+        if len(out) == 0:
+            out = proc.stdout
+        return self.parse_output_via_regex(out, virtual_view)
+
 
 class Govet(Linter):
-    regex = r'^.+:(?P<line>\d+)(:(?P<col>\d+))?:\s+(?P<message>.+)'
+    regex = r'^(?!vet:).+:(?P<line>\d+)(:(?P<col>\d+))?:\s+(?P<message>.+)'
     tempfile_suffix = '-'
     error_stream = util.STREAM_STDERR
     defaults = {

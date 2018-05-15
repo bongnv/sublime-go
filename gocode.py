@@ -25,7 +25,6 @@ def get_suggestions(view, loc):
         hint, subj = hint_and_subj(*arg)
         result.append([hint, subj])
 
-    print(result)
     return result
 
 
