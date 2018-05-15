@@ -10,3 +10,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `goimports` to format files on save
 - `gocode` to suggest autocompletion
 - `guru` to search for definitions
+- `golint` and `govet` for linting
