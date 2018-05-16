@@ -65,12 +65,6 @@ def run_go_tool(cmd, stdin=None, view=None, window=None):
     return 0, sout.decode(), None
 
 
-# diff_sanity_check to make sure we change the correct text.
-def diff_sanity_check(a, b):
-    if a != b:
-        raise Exception("diff sanity check mismatch\n-%s\n+%s" % (a, b))
-
-
 # safe_replace_all attempts to replace existing view with new text.
 def safe_replace_all(edit, view, src, dest):
     diff = difflib.ndiff(src.splitlines(), dest.splitlines())
@@ -81,14 +75,14 @@ def safe_replace_all(edit, view, src, dest):
 
         length = (len(line) - 2) + 1
         if line.startswith("-"):
-            diff_sanity_check(view.substr(
+            _diff_sanity_check(view.substr(
                 sublime.Region(i, i + length - 1)), line[2:])
             view.erase(edit, sublime.Region(i, i + length))
         elif line.startswith("+"):
             view.insert(edit, i, line[2:] + "\n")
             i += length
         else:
-            diff_sanity_check(view.substr(
+            _diff_sanity_check(view.substr(
                 sublime.Region(i, i + length - 1)), line[2:])
             i += length
 
@@ -113,6 +107,12 @@ def get_file_archive(view):
         text,
     ])
     return result
+
+
+# _diff_sanity_check to make sure we change the correct text.
+def _diff_sanity_check(a, b):
+    if a != b:
+        raise Exception("diff sanity check mismatch\n-%s\n+%s" % (a, b))
 
 
 def _get_goroot(view=None, window=None):
