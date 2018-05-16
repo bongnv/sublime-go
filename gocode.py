@@ -13,7 +13,7 @@ def get_suggestions(view, loc):
     code, sout, serr = utils.run_go_tool(
         ["gocode", "-f=csv", "autocomplete", filename, cloc],
         src,
-        filename,
+        view,
     )
     if code != 0:
         print("Error while running gocode, err: " + serr)

@@ -26,7 +26,7 @@ class GoFormatCommand(sublime_plugin.TextCommand):
         code, sout, serr = utils.run_go_tool(
             cmd,
             src,
-            filename,
+            view,
         )
         if code != 0:
             print("error while running goimports, err: " + serr)

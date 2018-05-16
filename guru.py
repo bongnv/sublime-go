@@ -19,7 +19,7 @@ class GoGuruGotoCommand(sublime_plugin.TextCommand):
         code, sout, serr = utils.run_go_tool(
             ["guru", "-json", "-modified", "definition", filename + ":#" + str(offset)],
             stdin=utils.get_file_archive(self.view),
-            file_path=filename,
+            view=self.view,
         )
 
         if code != 0:
