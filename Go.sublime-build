@@ -1,0 +1,11 @@
+{
+    "target": "golang_build",
+    "selector": "source.go",
+
+    "variants": [
+        {
+            "name": "Generate",
+            "task": "generate"
+        }
+    ]
+}

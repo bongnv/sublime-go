@@ -18,6 +18,7 @@ go get -u golang.org/x/lint/golint
 ```
 
 Make sure [`SublimeLinter`](http://www.sublimelinter.com/en/stable/) is installed in order to golint to work properly.
+Make sure [`Golang Build`](https://packagecontrol.io/packages/Golang%20Build) is installed in order to have full Go Builds options.
 
 ## Configurations
 
