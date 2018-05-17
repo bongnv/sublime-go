@@ -12,6 +12,14 @@ _platform = {
 }.get(sys.platform, 'linux')
 
 
+# get_setting returns setting value of a given name
+def get_merged_setting(name, view=None, window=None):
+    value = {}
+    for setting in reversed(_get_all_settings(view, window)):
+        value.update(setting.get(name, {}))
+    return value
+
+
 # is_go_view return true/false whether the given view is for a go source code or not.
 def is_go_view(view):
     return view.match_selector(0, "source.go")
@@ -132,18 +140,12 @@ def _get_gopath(view=None, window=None):
     return ""
 
 
-def _get_most_specific_setting(name, view=None, window=None):
-    """
-    Copied from https://github.com/golang/sublime-config/blob/master/all/golangconfig.py
-    """
-
+def _get_all_settings(view=None, window=None):
     if view is not None and not isinstance(view, sublime.View):
         raise TypeError("view must be an instance of sublime.View")
 
     if window is not None and not isinstance(window, sublime.Window):
         raise TypeError("window must be an instance of sublime.Window")
-
-    st_settings = sublime.load_settings("golang.sublime-settings")
 
     if view and not window:
         window = view.window()
@@ -151,16 +153,20 @@ def _get_most_specific_setting(name, view=None, window=None):
     if window and not view:
         view = window.active_view()
 
-    view_settings = view.settings().get("golang", {}) if view else {}
-    window_settings = window.project_data().get("settings", {}).get("golang", {}) if window else {}
-
-    settings_objects = [
-        (view_settings, 'project file'),
-        (window_settings, 'project file'),
-        (st_settings, 'golang.sublime-settings'),
+    return [
+        window.project_data().get("golang", {}) if window else {},
+        window.project_data().get("settings", {}).get("golang", {}) if window else {},
+        view.settings().get("golang", {}) if view else {},
+        sublime.load_settings("golang.sublime-settings"),
     ]
 
-    for settings_object, source in settings_objects:
+
+def _get_most_specific_setting(name, view=None, window=None):
+    """
+    Copied from https://github.com/golang/sublime-config/blob/master/all/golangconfig.py
+    """
+
+    for settings_object in _get_all_settings(view, window):
         platform_settings = settings_object.get(_platform, "")
         if isinstance(platform_settings, dict) and platform_settings.get(name, "") != "":
             return platform_settings.get(name)

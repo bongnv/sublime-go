@@ -5,7 +5,7 @@
 	},
 	{
 		"caption": "Go: Goimports",
-		"command":  "go_format",
+		"command": "go_format",
 		"args": {
 			"cmd": ["goimports","-e","-srcdir={file}"]
 		}

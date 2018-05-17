@@ -14,9 +14,11 @@ class GoEventListener(sublime_plugin.EventListener):
         if not utils.is_go_view(view):
             return
 
-        view.run_command(
-            "go_format",
-            {
-                "cmd": ["goimports", "-e", "-srcdir={file}"],
-            },
-        )
+        formats = utils.get_merged_setting("pre_save_formats", view)
+        for _, format_ in formats.items():
+            if not format_.get("enabled", True) or "cmd" not in format_:
+                continue
+            view.run_command(
+                "go_format",
+                format_,
+            )

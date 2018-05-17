@@ -4,7 +4,7 @@
 		"command": "go_guru_goto",
 		"context": [
 			{"key": "selector", "operator":"equal", "operand": "source.go"},
-			{"key": "setting.go_enable_default_hot_keys"}
+			{"key": "setting.go_override_default_hot_keys"}
 		]
 	}
 ]

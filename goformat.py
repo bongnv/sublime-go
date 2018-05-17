@@ -12,7 +12,6 @@ class GoFormatCommand(sublime_plugin.TextCommand):
         view = self.view
         if not utils.is_go_view(view):
             return
-
         src = view.substr(sublime.Region(0, view.size()))
         filename = view.file_name()
 

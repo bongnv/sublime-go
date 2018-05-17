@@ -1,4 +1,11 @@
 {
 	"auto_complete_triggers": [ {"selector": "source.go", "characters": "."} ],
-	"go_enable_default_hot_keys": true
+	"go_override_default_hot_keys": true,
+	"golang": {
+		"pre_save_formats": {
+			"goimports": {
+				"cmd": ["goimports", "-e", "-srcdir={file}"]
+			}
+		}
+	}
 }
