@@ -71,9 +71,3 @@ class Megacheck(Linter):
 
     def should_lint(self, reason):
         return super().should_lint(reason) and reason == 'on_user_request'
-
-    @classmethod
-    def can_lint_view(cls, view):
-        if not utils.get_most_specific_setting("megacheck_enabled", view):
-            return False
-        return super().can_lint_view(view)
