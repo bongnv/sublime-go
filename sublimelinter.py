@@ -3,26 +3,33 @@ from SublimeLinter.lint import util, Linter
 from . import utils
 
 
-class Golint(Linter):
+class Gotype(Linter):
     regex = r'^.+:(?P<line>\d+):(?P<col>\d+):\s+(?P<message>.+)'
-    tempfile_suffix = '-'
+    error_stream = util.STREAM_STDERR
     defaults = {
         'selector': 'source.go'
     }
 
     def cmd(self):
-        cmd = utils.executable_path("golint", self.view)
-        print(cmd)
-        return cmd
+        return [utils.executable_path("gotype", self.view), "-e"]
 
     def get_environment(self, settings):
         return utils.prepare_env(self.view)
 
-    def parse_output(self, proc, virtual_view):
-        out = proc.stderr
-        if len(out) == 0:
-            out = proc.stdout
-        return self.parse_output_via_regex(out, virtual_view)
+
+class Golint(Linter):
+    regex = r'^.+:(?P<line>\d+):(?P<col>\d+):\s+(?P<message>.+)'
+    tempfile_suffix = '-'
+    error_stream = util.STREAM_STDOUT
+    defaults = {
+        'selector': 'source.go'
+    }
+
+    def cmd(self):
+        return [utils.executable_path("golint", self.view), "$file"]
+
+    def get_environment(self, settings):
+        return utils.prepare_env(self.view)
 
 
 class Govet(Linter):
@@ -34,7 +41,31 @@ class Govet(Linter):
     }
 
     def cmd(self):
-        return [utils.executable_path("go", self.view), "tool", "vet"]
+        return [utils.executable_path("go", self.view), "tool", "vet", "$file"]
 
     def get_environment(self, settings):
         return utils.prepare_env(self.view)
+
+
+class Megacheck(Linter):
+    regex = r'^.+:(?P<line>\d+):(?P<col>\d+):\s+(?P<message>.+)'
+    tempfile_suffix = '-'
+    error_stream = util.STREAM_STDOUT
+    defaults = {
+        'selector': 'source.go'
+    }
+
+    def cmd(self):
+        return [utils.executable_path("megacheck", self.view), "$file"]
+
+    def get_environment(self, settings):
+        return utils.prepare_env(self.view)
+
+    def should_lint(self, reason):
+        return super().should_lint(reason) and reason == 'on_user_request'
+
+    @classmethod
+    def can_lint_view(cls, view):
+        if not utils.get_most_specific_setting("megacheck_enabled", view):
+            return False
+        return super().can_lint_view(view)

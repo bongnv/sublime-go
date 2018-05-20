@@ -20,6 +20,25 @@ def get_merged_setting(name, view=None, window=None):
     return value
 
 
+# get_most_specific_setting attempts to find a value of a given key from several settings
+# and return the most specific one
+def get_most_specific_setting(name, view=None, window=None):
+    """
+    Copied from https://github.com/golang/sublime-config/blob/master/all/golangconfig.py
+    """
+
+    for settings_object in _get_all_settings(view, window):
+        platform_settings = settings_object.get(_platform, "")
+        if isinstance(platform_settings, dict) and platform_settings.get(name, "") != "":
+            return platform_settings.get(name)
+
+        result = settings_object.get(name, "")
+        if result != "":
+            return settings_object.get(name)
+
+    return ""
+
+
 # is_go_view return true/false whether the given view is for a go source code or not.
 def is_go_view(view):
     return view.match_selector(0, "source.go")
@@ -124,11 +143,11 @@ def _diff_sanity_check(a, b):
 
 
 def _get_goroot(view=None, window=None):
-    return _get_most_specific_setting("goroot", view, window)
+    return get_most_specific_setting("goroot", view, window)
 
 
 def _get_gopath(view=None, window=None):
-    gopath = _get_most_specific_setting("gopath", view, window)
+    gopath = get_most_specific_setting("gopath", view, window)
     if len(gopath) > 0:
         return gopath
 
@@ -159,23 +178,6 @@ def _get_all_settings(view=None, window=None):
         view.settings().get("golang", {}) if view else {},
         sublime.load_settings("golang.sublime-settings"),
     ]
-
-
-def _get_most_specific_setting(name, view=None, window=None):
-    """
-    Copied from https://github.com/golang/sublime-config/blob/master/all/golangconfig.py
-    """
-
-    for settings_object in _get_all_settings(view, window):
-        platform_settings = settings_object.get(_platform, "")
-        if isinstance(platform_settings, dict) and platform_settings.get(name, "") != "":
-            return platform_settings.get(name)
-
-        result = settings_object.get(name, "")
-        if result != "":
-            return settings_object.get(name)
-
-    return ""
 
 
 def _check_executable(p):
