@@ -11,4 +11,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - `gocode` to suggest autocompletion
 - `guru` to search for definitions
 - `golint` and `govet` for linting
-- `gotype` for real-time linting
+- `gotype-live` for real-time linting

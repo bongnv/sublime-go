@@ -1,3 +1,4 @@
+import os
 from SublimeLinter.lint import util, Linter
 
 from . import utils
@@ -11,7 +12,14 @@ class Gotype(Linter):
     }
 
     def cmd(self):
-        return [utils.executable_path("gotype", self.view), "-e"]
+        filename = self.view.file_name()
+        return [
+            utils.executable_path("gotype-live", self.view),
+            "-e",
+            "-seq",
+            "-lf="+filename,
+            os.path.dirname(filename),
+        ]
 
     def get_environment(self, settings):
         return utils.prepare_env(self.view)
