@@ -172,9 +172,11 @@ def _get_all_settings(view=None, window=None):
     if window and not view:
         view = window.active_view()
 
+    project_data = window.project_data() or {}
+
     return [
-        window.project_data().get("golang", {}) if window else {},
-        window.project_data().get("settings", {}).get("golang", {}) if window else {},
+        project_data.get("golang", {}) if window else {},
+        project_data.get("settings", {}).get("golang", {}) if window else {},
         view.settings().get("golang", {}) if view else {},
         sublime.load_settings("golang.sublime-settings"),
     ]
