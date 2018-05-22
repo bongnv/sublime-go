@@ -5,7 +5,7 @@ from . import utils
 
 
 class Gotype(Linter):
-    regex = r'^.+:(?P<line>\d+):(?P<col>\d+):\s+(?P<message>.+)'
+    regex = r'(?P<filename>^.+):(?P<line>\d+):(?P<col>\d+):\s+(?P<message>.+)'
     error_stream = util.STREAM_STDERR
     defaults = {
         'selector': 'source.go'
@@ -23,6 +23,12 @@ class Gotype(Linter):
 
     def get_environment(self, settings):
         return utils.prepare_env(self.view)
+
+    def split_match(self, match):
+        gd = match.groupdict()
+        if gd.get("filename") != self.view.file_name():
+            return None
+        return super().split_match(match)
 
 
 class Golint(Linter):
