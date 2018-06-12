@@ -136,6 +136,15 @@ def get_file_archive(view):
     return result
 
 
+def get_working_dir(window=None, view=None):
+    view, window = _get_view_and_window(view, window)
+    if view and view.file_name():
+        return os.path.dirname(view.file_name())
+    if window:
+        return window.extract_variables()["file_path"]
+    return None
+
+
 # _diff_sanity_check to make sure we change the correct text.
 def _diff_sanity_check(a, b):
     if a != b:
@@ -151,6 +160,7 @@ def _get_gopath(view=None, window=None):
     if len(gopath) > 0:
         return gopath
 
+    view, window = _get_view_and_window(view, window)
     file_path = view.file_name()
     while len(file_path) > 4:
         if os.path.basename(file_path) == "src":
@@ -160,17 +170,7 @@ def _get_gopath(view=None, window=None):
 
 
 def _get_all_settings(view=None, window=None):
-    if view is not None and not isinstance(view, sublime.View):
-        raise TypeError("view must be an instance of sublime.View")
-
-    if window is not None and not isinstance(window, sublime.Window):
-        raise TypeError("window must be an instance of sublime.Window")
-
-    if view and not window:
-        window = view.window()
-
-    if window and not view:
-        view = window.active_view()
+    view, window = _get_view_and_window(view, window)
 
     project_data = window.project_data() or {}
 
@@ -184,3 +184,19 @@ def _get_all_settings(view=None, window=None):
 
 def _check_executable(p):
     return os.path.exists(p) and os.path.isfile(p) and os.access(p, os.X_OK)
+
+
+def _get_view_and_window(view=None, window=None):
+    if view is not None and not isinstance(view, sublime.View):
+        raise TypeError("view must be an instance of sublime.View")
+
+    if window is not None and not isinstance(window, sublime.Window):
+        raise TypeError("window must be an instance of sublime.Window")
+
+    if view and window is None:
+        return view, view.window()
+    if window is None:
+        window = sublime.active_window()
+    if view is None and window:
+        return window.active_view(), window
+    return view, window

@@ -1,11 +1,12 @@
 {
-    "target": "golang_build",
+    "target": "go_build",
     "selector": "source.go",
-
+	"cancel": {"kill": true},
     "variants": [
         {
             "name": "Generate",
-            "task": "generate"
+            "task": "generate",
+            "flags": ["-v"]
         }
     ]
 }
