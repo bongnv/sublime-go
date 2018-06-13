@@ -20,7 +20,6 @@ go get -u github.com/tylerb/gotype-live
 ```
 
 Make sure [`SublimeLinter`](http://www.sublimelinter.com/en/stable/) is installed in order to have lint features.
-Make sure [`Golang Build`](https://packagecontrol.io/packages/Golang%20Build) is installed in order to have full Go Builds options.
 
 ## Configurations
 
