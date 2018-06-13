@@ -4,6 +4,7 @@ import sublime
 import sublime_plugin
 import subprocess
 import threading
+import time
 
 from . import utils
 
@@ -83,10 +84,7 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
     panel = None
     panel_lock = threading.Lock()
 
-    def is_enabled(self, lint=False, integration=False, kill=False):
-        if not utils.is_go_view(self.view):
-            return False
-
+    def is_enabled(self, kill=False):
         # The Cancel build option should only be available
         # when the process is still running
         if kill:
@@ -174,6 +172,7 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
         self.queue_write(title)
 
     def read_handle(self, handle):
+        started = time.time()
         chunk_size = 2 ** 13
         out = b''
         while True:
@@ -200,11 +199,15 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
                 break
             except (IOError):
                 if self.killed:
-                    msg = 'Cancelled'
+                    result = 'cancelled'
                 else:
-                    msg = 'Finished'
+                    self.proc.wait()
+                    result = 'success' if self.proc.returncode == 0 else 'error'
+                runtime = time.time() - started
+                msg = 'Elapsed: %0.3fs. Result: %s' % (runtime, result)
                 self.queue_write('\n[%s]' % msg)
                 break
+        self.proc = None
 
     def queue_write(self, text):
         sublime.set_timeout(lambda: self.do_write(text), 1)

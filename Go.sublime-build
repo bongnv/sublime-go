@@ -21,10 +21,11 @@
             "name": "Install",
             "task": "install"
         },
-        {
-            "name": "Run",
-            "task": "run"
-        },
+        // {
+        //     "name": "Run",
+        //     "task": "run",
+        //     "flags": ["-v", "main.go"]
+        // },
         {
             "name": "Test",
             "task": "test",
