@@ -136,6 +136,9 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
         if flags and isinstance(flags, list):
             args.extend(flags)
 
+        if task == "build":
+            args.append("-v")
+
         env = utils.prepare_env(window=self.window)
 
         self.proc = subprocess.Popen(
