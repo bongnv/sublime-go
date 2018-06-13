@@ -4,8 +4,30 @@
 	"cancel": {"kill": true},
     "variants": [
         {
+            "name": "Benchmark",
+            "task": "benchmark",
+            "flags": ["-v"]
+        },
+        {
+            "name": "Clean",
+            "task": "clean"
+        },
+        {
             "name": "Generate",
             "task": "generate",
+            "flags": ["-v"]
+        },
+        {
+            "name": "Install",
+            "task": "install"
+        },
+        {
+            "name": "Run",
+            "task": "run"
+        },
+        {
+            "name": "Test",
+            "task": "test",
             "flags": ["-v"]
         }
     ]
