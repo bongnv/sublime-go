@@ -5,7 +5,7 @@ A Sublime Text package for working with Go.
 - Code completion (using `gocode`)
 - Code format (using `goimports`)
 - Goto definition (using `guru`). Support modified files.
-- Linter (using `golint`, `go vet` and `SublimeLinter`)
+- Linter (using `golint`, `go vet`, `megacheck` with `SublimeLinter`)
 - Real-time linting (using `gotype-live`)
 
 ## Requirements
@@ -17,6 +17,7 @@ go get -u github.com/nsf/gocode
 go get -u golang.org/x/tools/cmd/guru
 go get -u golang.org/x/lint/golint
 go get -u github.com/tylerb/gotype-live
+go get -u honnef.co/go/tools/cmd/megacheck
 ```
 
 Make sure [`SublimeLinter`](http://www.sublimelinter.com/en/stable/) is installed in order to have lint features.
@@ -24,8 +25,9 @@ Make sure [`SublimeLinter`](http://www.sublimelinter.com/en/stable/) is installe
 ## Configurations
 
 The plugin contributes the following settings:
-- `go_override_default_hot_keys`: Override default hot keys by provided functionality from the package (default: `true`)
-- To have custom format pre save, add the similar configuration to the following :
+
+* `go_override_default_hot_keys`: Override default hot keys to provide functionality from the package (default: `true`)
+* To have custom formatter before files saving, add a similar configuration to the following to `.sublime-project` files:
 ```json
   "golang": {
     "pre_save_formats": {
