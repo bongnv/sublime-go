@@ -8,12 +8,15 @@ class Command:
         self.view, self.window = _get_view_window(view, window)
         self.edit = edit
 
+    @classmethod
     def new_region(cls, a, b):
         return sublime.Region(a, b)
 
+    @classmethod
     def set_timeout(cls, fn, duration):
         return sublime.set_timeout(cls, fn, duration)
 
+    @classmethod
     def active_window(cls, active_window):
         return sublime.active_window()
 
