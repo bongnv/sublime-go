@@ -4,6 +4,10 @@
 		"command": "go_guru_goto"
 	},
 	{
+		"caption": "Go: Find References",
+		"command": "go_find_references"
+	},
+	{
 		"caption": "Go: Goimports",
 		"command": "go_format",
 		"args": {

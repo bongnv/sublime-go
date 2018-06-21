@@ -7,6 +7,7 @@ A Sublime Text package for working with Go.
 - Goto definition (using `guru`). Support modified files.
 - Linter (using `golint`, `go vet`, `megacheck` with `SublimeLinter`)
 - Real-time linting (using `gotype-live`)
+- Find all references (using `guru`). Support modified files.
 
 ## Requirements
 

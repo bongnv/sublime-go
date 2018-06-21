@@ -76,6 +76,26 @@ class GoGuruGotoCommand(sublime_plugin.TextCommand):
         self.view.window().open_file(position, sublime.ENCODED_POSITION)
 
 
+class GoFindReferencesCommand(sublime_plugin.TextCommand):
+    def is_enabled(self):
+        return utils.is_go_view(self.view)
+
+    def run(self, edit):
+        filename = self.view.file_name()
+        offset = utils.get_byte_offset(self.view)
+        p = subprocess.Popen(
+            ["guru", "-modified", "referrers", filename + ":#" + str(offset)],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            env=utils.prepare_env(self.view),
+        )
+        threading.Thread(
+            target=utils.print_output,
+            args=(p, self.view),
+        ).start()
+
+
 # Codes are modified from a copy https://www.sublimetext.com/docs/3/build_systems.html
 class GoBuildCommand(sublime_plugin.WindowCommand):
     encoding = 'utf-8'
@@ -150,7 +170,7 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
         self.write_header(args, working_dir, env)
         threading.Thread(
             target=self.read_handle,
-            args=(self.proc.stdout,)
+            args=(self.proc.stdout)
         ).start()
 
     def write_header(self, args, cwd, env):

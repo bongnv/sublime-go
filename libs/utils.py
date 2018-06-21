@@ -145,6 +145,19 @@ def get_working_dir(window=None, view=None):
     return None
 
 
+def print_output(p, view):
+    sout = p.communicate(get_file_archive(view).encode())[0]
+    scratch_file = view.window().new_file()
+    scratch_file.set_scratch(True)
+    scratch_file.set_name("Find References")
+    scratch_file.run_command("append", {"characters": sout.decode()})
+    settings = scratch_file.settings()
+    settings.set(
+        'result_file_regex',
+        r'(.+\.go):([0-9]+)\.([0-9]+)',
+    )
+
+
 # _diff_sanity_check to make sure we change the correct text.
 def _diff_sanity_check(a, b):
     if a != b:
