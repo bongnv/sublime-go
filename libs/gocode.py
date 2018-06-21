@@ -1,19 +1,14 @@
-import sublime
-
 from . import utils
 
 
-def get_suggestions(view, loc):
-    if not utils.is_go_view(view):
-        return None
-
-    src = view.substr(sublime.Region(0, view.size()))
-    filename = view.file_name()
+def get_suggestions(cmd, loc):
+    src = cmd.view.substr(cmd.new_region(0, cmd.view.size()))
+    filename = cmd.view.file_name()
     cloc = "c{0}".format(loc)
     code, sout, serr = utils.run_go_tool(
+        cmd,
         ["gocode", "-f=csv", "autocomplete", filename, cloc],
         src,
-        view,
     )
     if code != 0:
         print("Error while running gocode, err: " + serr)

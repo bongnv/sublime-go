@@ -2,6 +2,7 @@ import os
 from SublimeLinter.lint import util, Linter
 
 from . import utils
+from . import command
 
 
 class Gotype(Linter):
@@ -14,7 +15,7 @@ class Gotype(Linter):
     def cmd(self):
         filename = self.view.file_name()
         return [
-            utils.executable_path("gotype-live", self.view),
+            utils.executable_path(command.Command(self.view), "gotype-live"),
             "-e",
             "-seq",
             "-lf="+filename,
@@ -22,7 +23,7 @@ class Gotype(Linter):
         ]
 
     def get_environment(self, settings):
-        return utils.prepare_env(self.view)
+        return utils.prepare_env(command.Command(self.view))
 
     def split_match(self, match):
         gd = match.groupdict()
@@ -40,10 +41,10 @@ class Golint(Linter):
     }
 
     def cmd(self):
-        return [utils.executable_path("golint", self.view), "$file"]
+        return [utils.executable_path(command.Command(self.view), "golint"), "$file"]
 
     def get_environment(self, settings):
-        return utils.prepare_env(self.view)
+        return utils.prepare_env(command.Command(self.view))
 
 
 class Govet(Linter):
@@ -55,10 +56,10 @@ class Govet(Linter):
     }
 
     def cmd(self):
-        return [utils.executable_path("go", self.view), "tool", "vet", "$file"]
+        return [utils.executable_path(command.Command(self.view), "go"), "tool", "vet", "$file"]
 
     def get_environment(self, settings):
-        return utils.prepare_env(self.view)
+        return utils.prepare_env(command.Command(self.view))
 
 
 class Megacheck(Linter):
@@ -70,10 +71,10 @@ class Megacheck(Linter):
     }
 
     def cmd(self):
-        return [utils.executable_path("megacheck", self.view), "$file"]
+        return [utils.executable_path(command.Command(self.view), "megacheck"), "$file"]
 
     def get_environment(self, settings):
-        return utils.prepare_env(self.view)
+        return utils.prepare_env(command.Command(self.view))
 
     def should_lint(self, reason):
         return super().should_lint(reason) and reason == 'on_user_request'
