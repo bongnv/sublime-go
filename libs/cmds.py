@@ -1,12 +1,10 @@
 import json
 import os
-import sublime_plugin
 import subprocess
 import threading
 import time
 
 from . import utils
-from . import command
 
 
 # A list of the environment variables to pull from settings when creating a
@@ -26,49 +24,41 @@ GO_ENV_VARS = set([
 ])
 
 
-class GoFormatCommand(sublime_plugin.TextCommand):
+class GoFormatCommand:
     def is_enabled(self):
         return utils.is_go_view(self.view)
 
     def run(self, edit, cmd):
-        sublime_cmd = command.Command(
-            view=self.view,
-            edit=edit,
-        )
-
-        src = sublime_cmd.view.substr(sublime_cmd.new_region(0, sublime_cmd.view.size()))
-        filename = sublime_cmd.view.file_name()
+        src = self.view.substr(self.new_region(0, self.view.size()))
+        filename = self.view.file_name()
 
         cmd = [x.format_map({"file": filename}) for x in cmd]
         code, sout, serr = utils.run_go_tool(
-            sublime_cmd,
+            self,
             cmd,
             src,
+            self.view,
         )
         if code != 0:
             print("error while running goimports, err: " + serr)
             return
 
-        utils.safe_replace_all(sublime_cmd, src, sout)
+        utils.safe_replace_all(self, self.view, edit, src, sout)
 
 
-class GoGuruGotoCommand(sublime_plugin.TextCommand):
+class GoGuruGotoCommand:
     def is_enabled(self):
         return utils.is_go_view(self.view)
 
     def run(self, edit):
-        cmd = command.Command(
-            view=self.view,
-            edit=edit,
-        )
-
-        filename = cmd.view.file_name()
-        offset = utils.get_byte_offset(cmd)
+        filename = self.view.file_name()
+        offset = utils.get_byte_offset(self, self.view)
 
         code, sout, serr = utils.run_go_tool(
-            cmd,
+            self,
             ["guru", "-json", "-modified", "definition", filename + ":#" + str(offset)],
-            stdin=utils.get_file_archive(cmd),
+            stdin=utils.get_file_archive(self, self.view),
+            view=self.view,
         )
 
         if code != 0:
@@ -77,35 +67,31 @@ class GoGuruGotoCommand(sublime_plugin.TextCommand):
 
         definition = json.loads(sout)
         position = definition['objpos']
-        self.view.window().open_file(position, cmd.ENCODED_POSITION)
+        self.view.window().open_file(position, self.ENCODED_POSITION)
 
 
-class GoFindReferencesCommand(sublime_plugin.TextCommand):
+class GoFindReferencesCommand:
     def is_enabled(self):
         return utils.is_go_view(self.view)
 
     def run(self, edit):
-        cmd = command.Command(
-            view=self.view,
-            edit=edit,
-        )
         filename = self.view.file_name()
-        offset = utils.get_byte_offset(cmd)
+        offset = utils.get_byte_offset(self, self.view)
         p = subprocess.Popen(
             ["guru", "-modified", "referrers", filename + ":#" + str(offset)],
             stdin=subprocess.PIPE,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            env=utils.prepare_env(cmd),
+            env=utils.prepare_env(self, self.view),
         )
         threading.Thread(
             target=utils.print_output,
-            args=(cmd, p),
+            args=(self, p, self.view),
         ).start()
 
 
 # Codes are modified from a copy https://www.sublimetext.com/docs/3/build_systems.html
-class GoBuildCommand(sublime_plugin.WindowCommand):
+class GoBuildCommand:
     encoding = 'utf-8'
     killed = False
     proc = None
@@ -126,8 +112,7 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
                 self.proc.terminate()
             return
 
-        cmd = command.Command(window=self.window)
-        working_dir = utils.get_working_dir(cmd)
+        working_dir = utils.get_working_dir(self, window=self.window)
 
         # A lock is used to ensure only one thread is
         # touching the output panel at a time
@@ -166,7 +151,7 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
         if task == "build":
             args.append("-v")
 
-        env = utils.prepare_env(cmd)
+        env = utils.prepare_env(self, window=self.window)
 
         self.proc = subprocess.Popen(
             args,
@@ -179,10 +164,10 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
         self.write_header(args, working_dir, env)
         threading.Thread(
             target=self.read_handle,
-            args=(cmd, self.proc.stdout)
+            args=(self.proc.stdout,),
         ).start()
 
-    def write_header(self, cmd, args, cwd, env):
+    def write_header(self, args, cwd, env):
         title = ''
 
         env_vars = []
@@ -198,9 +183,9 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
         title += '> Directory: %s\n' % cwd
         title += '> Command: %s\n' % subprocess.list2cmdline(args)
         title += '> Output:\n'
-        self.queue_write(cmd, title)
+        self.queue_write(title)
 
-    def read_handle(self, cmd, handle):
+    def read_handle(self, handle):
         started = time.time()
         chunk_size = 2 ** 13
         out = b''
@@ -224,7 +209,7 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
                 out = b''
             except (UnicodeDecodeError) as e:
                 msg = 'Error decoding output using %s - %s'
-                self.queue_write(cmd, msg % (self.encoding, str(e)))
+                self.queue_write(msg % (self.encoding, str(e)))
                 break
             except (IOError):
                 if self.killed:
@@ -234,12 +219,12 @@ class GoBuildCommand(sublime_plugin.WindowCommand):
                     result = 'success' if self.proc.returncode == 0 else 'error'
                 runtime = time.time() - started
                 msg = 'Elapsed: %0.3fs. Result: %s' % (runtime, result)
-                self.queue_write(cmd, '\n[%s]' % msg)
+                self.queue_write('\n[%s]' % msg)
                 break
         self.proc = None
 
-    def queue_write(self, cmd, text):
-        cmd.set_timeout(lambda: self.do_write(text), 1)
+    def queue_write(self, text):
+        self.set_timeout(lambda: self.do_write(text), 1)
 
     def do_write(self, text):
         with self.panel_lock:

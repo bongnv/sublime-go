@@ -12,9 +12,9 @@ _platform = {
 
 
 # get_setting returns setting value of a given name
-def get_merged_setting(cmd, name):
+def get_merged_setting(api, name, view=None, window=None):
     value = {}
-    for setting in reversed(_get_all_settings(cmd)):
+    for setting in reversed(_get_all_settings(api, view, window)):
         value.update(setting.get(name, {}))
     return value
 
@@ -24,17 +24,17 @@ def is_go_view(view=None):
     return view and view.match_selector(0, "source.go")
 
 
-def executable_path(sublime_cmd, cmd):
-    for dir_ in prepare_env(sublime_cmd).get("PATH", "").split(os.pathsep):
+def executable_path(api, cmd, view=None, window=None):
+    for dir_ in prepare_env(api, view, window).get("PATH", "").split(os.pathsep):
         p = os.path.join(dir_, cmd)
         if _check_executable(p):
             return p
     return cmd
 
 
-def prepare_env(cmd):
-    gopath = _get_gopath(cmd)
-    goroot = _get_goroot(cmd)
+def prepare_env(api, view=None, window=None):
+    gopath = _get_gopath(api, view, window)
+    goroot = _get_goroot(api, view, window)
 
     _, my_env = shellenv.get_env()
     paths = [my_env["PATH"]]
@@ -51,7 +51,7 @@ def prepare_env(cmd):
 
 
 # run_go_tool executes a go tool command and return code, stdout, stderr.
-def run_go_tool(sublime_cmd, cmd, stdin=None):
+def run_go_tool(api, cmd, stdin=None, view=None, window=None):
     stdin_p = subprocess.PIPE
     if stdin is None:
         stdin_p = None
@@ -61,7 +61,7 @@ def run_go_tool(sublime_cmd, cmd, stdin=None):
         stdin=stdin_p,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        env=prepare_env(sublime_cmd),
+        env=prepare_env(api, view, window),
     )
     if stdin is None:
         sout, serr = gotool.communicate()
@@ -73,7 +73,7 @@ def run_go_tool(sublime_cmd, cmd, stdin=None):
 
 
 # safe_replace_all attempts to replace existing view with new text.
-def safe_replace_all(cmd, src, dest):
+def safe_replace_all(api, view, edit, src, dest):
     diff = difflib.ndiff(src.splitlines(), dest.splitlines())
     i = 0
     for line in diff:
@@ -82,54 +82,57 @@ def safe_replace_all(cmd, src, dest):
 
         length = (len(line) - 2) + 1
         if line.startswith("-"):
-            _diff_sanity_check(cmd.view.substr(
-                cmd.new_region(i, i + length - 1)), line[2:])
-            cmd.view.erase(cmd.edit, cmd.new_region(i, i + length))
+            _diff_sanity_check(view.substr(
+                api.new_region(i, i + length - 1)), line[2:])
+            view.erase(edit, api.new_region(i, i + length))
         elif line.startswith("+"):
-            cmd.view.insert(cmd.edit, i, line[2:] + "\n")
+            view.insert(edit, i, line[2:] + "\n")
             i += length
         else:
-            _diff_sanity_check(cmd.view.substr(
-                cmd.new_region(i, i + length - 1)), line[2:])
+            _diff_sanity_check(view.substr(
+                api.new_region(i, i + length - 1)), line[2:])
             i += length
 
 
 # get_byte_offset returns the current byte offset
-def get_byte_offset(cmd):
-    cur_char_offset = cmd.view.sel()[0].begin()
-    text = cmd.view.substr(cmd.new_region(0, cur_char_offset))
+def get_byte_offset(api, view):
+    cur_char_offset = view.sel()[0].begin()
+    text = view.substr(api.new_region(0, cur_char_offset))
     byte_offset = len(text.encode())
-    if cmd.view.line_endings() == "Windows":
+    if view.line_endings() == "Windows":
         byte_offset += text.count('\n')
     return byte_offset
 
 
 # get_file_archive generate stdin of modified files in the format that guru can understand.
-def get_file_archive(cmd):
-    text = cmd.view.substr(cmd.new_region(0, cmd.view.size()))
+def get_file_archive(api, view):
+    text = view.substr(api.new_region(0, view.size()))
     byte_size = len(text.encode())
     result = "\n".join([
-        cmd.view.file_name(),
+        view.file_name(),
         str(byte_size),
         text,
     ])
     return result
 
 
-def get_working_dir(cmd):
-    if cmd.view and cmd.view.file_name():
-        return os.path.dirname(cmd.view.file_name())
-    if cmd.window:
-        return cmd.window.extract_variables()["file_path"]
+def get_working_dir(api, view=None, window=None):
+    view, window = _get_view_window(api, view, window)
+    if view and view.file_name():
+        return os.path.dirname(view.file_name())
+    if window:
+        return window.extract_variables()["file_path"]
     return None
 
 
-def print_output(cmd, p):
-    sout = p.communicate(get_file_archive(cmd).encode())[0]
-    scratch_file = cmd.window.new_file()
+def print_output(api, p, view, window=None):
+    view, window = _get_view_window(view, window)
+    sout = p.communicate(get_file_archive(api, view).encode())[0]
+    scratch_file = window.new_file()
     scratch_file.set_scratch(True)
     scratch_file.set_name("Find References")
     scratch_file.run_command("append", {"characters": sout.decode()})
+    scratch_file.set_read_only(True)
     settings = scratch_file.settings()
     settings.set(
         'result_file_regex',
@@ -145,12 +148,12 @@ def _diff_sanity_check(a, b):
 
 # get_most_specific_setting attempts to find a value of a given key from several settings
 # and return the most specific one
-def _get_most_specific_setting(cmd, name):
+def _get_most_specific_setting(api, view, window, name):
     """
     Copied from https://github.com/golang/sublime-config/blob/master/all/golangconfig.py
     """
 
-    for settings_object in _get_all_settings(cmd):
+    for settings_object in _get_all_settings(api, view, window):
         platform_settings = settings_object.get(_platform, "")
         if isinstance(platform_settings, dict) and platform_settings.get(name, "") != "":
             return platform_settings.get(name)
@@ -162,16 +165,17 @@ def _get_most_specific_setting(cmd, name):
     return ""
 
 
-def _get_goroot(cmd):
-    return _get_most_specific_setting(cmd, "goroot")
+def _get_goroot(api, view, window):
+    return _get_most_specific_setting(api, view, window, "goroot")
 
 
-def _get_gopath(cmd):
-    gopath = _get_most_specific_setting(cmd, "gopath")
+def _get_gopath(api, view, window):
+    view, window = _get_view_window(api, view, window)
+    gopath = _get_most_specific_setting(api, view, window, "gopath")
     if len(gopath) > 0:
         return gopath
 
-    file_path = cmd.view.file_name()
+    file_path = view.file_name()
     while len(file_path) > 4:
         if os.path.basename(file_path) == "src":
             return os.path.dirname(file_path)
@@ -179,14 +183,25 @@ def _get_gopath(cmd):
     return ""
 
 
-def _get_all_settings(cmd):
-    project_data = cmd.window.project_data() or {}
+def _get_all_settings(api, view=None, window=None):
+    view, window = _get_view_window(api, view, window)
+    project_data = window.project_data() or {}
 
     return [
-        project_data.get("golang", {}) if cmd.window else {},
-        project_data.get("settings", {}).get("golang", {}) if cmd.window else {},
-        cmd.view.settings().get("golang", {}) if cmd.view else {},
+        project_data.get("golang", {}) if window else {},
+        project_data.get("settings", {}).get("golang", {}) if window else {},
+        view.settings().get("golang", {}) if view else {},
     ]
+
+
+def _get_view_window(api, view=None, window=None):
+    if view and window is None:
+        return view, view.window()
+    if window is None:
+        window = api.active_window()
+    if view is None and window:
+        return window.active_view(), window
+    return view, window
 
 
 def _check_executable(p):
