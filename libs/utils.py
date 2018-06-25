@@ -126,7 +126,7 @@ def get_working_dir(api, view=None, window=None):
 
 
 def print_output(api, p, view, window=None):
-    view, window = _get_view_window(view, window)
+    view, window = _get_view_window(api, view, window)
     sout = p.communicate(get_file_archive(api, view).encode())[0]
     scratch_file = window.new_file()
     scratch_file.set_scratch(True)
