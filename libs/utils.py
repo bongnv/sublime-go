@@ -2,7 +2,6 @@ import difflib
 import os
 import sys
 import subprocess
-import shellenv
 
 
 _platform = {
@@ -36,15 +35,19 @@ def prepare_env(api, view=None, window=None):
     gopath = _get_gopath(api, view, window)
     goroot = _get_goroot(api, view, window)
 
-    _, my_env = shellenv.get_env()
+    my_env = os.environ.copy()
+    print(my_env)
     paths = [my_env["PATH"]]
     if len(gopath) > 0:
         paths.append(os.path.join(gopath, "bin"))
-        my_env["GOPATH"] = gopath
+        if "GOPATH" not in my_env:
+            my_env["GOPATH"] = gopath
 
     if len(goroot) > 0:
+        print(goroot)
         paths.append(os.path.join(goroot, "bin"))
-        my_env["GOROOT"] = goroot
+        if "GOROOT" not in my_env:
+            my_env["GOROOT"] = goroot
 
     my_env["PATH"] = os.pathsep.join(paths)
     return my_env
@@ -166,7 +169,15 @@ def _get_most_specific_setting(api, view, window, name):
 
 
 def _get_goroot(api, view, window):
-    return _get_most_specific_setting(api, view, window, "goroot")
+    goroot = _get_most_specific_setting(api, view, window, "goroot")
+    if len(goroot) > 0:
+        return goroot
+
+    for path in os.environ.get("PATH").split(os.pathsep):
+        if os.path.basename(path) == "bin" and \
+                _check_executable(os.path.join(path, "go")):
+            return os.path.dirname(path)
+    return None
 
 
 def _get_gopath(api, view, window):
